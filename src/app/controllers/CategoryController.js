@@ -1,10 +1,11 @@
 import * as Yup from 'yup';
 import Category from '../models/Category';
+import User from '../models/User';
 
 class CategoryController {
     async store(request, response) {
         console.log(request.body);
-        
+
         const schema = Yup.object({
             name: Yup.string().required(),
         });
@@ -16,6 +17,12 @@ class CategoryController {
             return response.status(400).json({ error: err.errors });
         }
 
+        const { admin: isAdmin } = await User.findByPk(request.userId); //Desestruturação porque tem que receber uma propriedade admin.
+
+        if (!isAdmin) {
+            return response.status(401).json({ error: 'User is not authorized' });
+        }
+
         const { name } = request.body;
 
         const categoryExists = await Category.findOne({
@@ -24,23 +31,23 @@ class CategoryController {
             }
         });
 
-        if(categoryExists){
-            return response.status(400).json({error: 'category already exists'});
+        if (categoryExists) {
+            return response.status(400).json({ error: 'category already exists' });
         }
 
         // const category = await Category.create({
         //     name,
         // });
 
-         const { id } = await Category.create({
+        const { id } = await Category.create({
             name,
         });
 
         // return response.status(201).json(category);
-        return response.status(201).json({id, name});
+        return response.status(201).json({ id, name });
     }
 
-    async index(request, response){
+    async index(request, response) {
         const categories = await Category.findAll();
 
         return response.json(categories);

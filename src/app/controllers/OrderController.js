@@ -2,6 +2,7 @@ import * as Yup from 'yup';
 import Order from '../schemas/Order';
 import Category from '../models/Category';
 import Product from '../models/Product';
+import User from '../models/User';
 
 class OrderController {
     async store(request, response) {
@@ -83,16 +84,22 @@ class OrderController {
             return response.status(400).json({ error: err.errors });
         }
 
+        const { admin: isAdmin } = await User.findByPk(request.userId); //Desestruturação porque tem que receber uma propriedade admin.
+
+        if (!isAdmin) {
+            return response.status(401).json({ error: 'User is not authorized' });
+        }
+
         const { id } = request.params;
         const { status } = request.body;
 
         try {
-            await Order.updateOne({_id: id}, {status});
+            await Order.updateOne({ _id: id }, { status });
         } catch (err) {
-            return response.stastus(400).json({error: err.message});
+            return response.stastus(400).json({ error: err.message });
         }
 
-        return response.json({message: 'Status updated successfuly'});
+        return response.json({ message: 'Status updated successfuly' });
     }
 }
 
