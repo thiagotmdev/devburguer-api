@@ -10,6 +10,7 @@ import ProductController from './app/controllers/ProductController';
 import authMiddleware from './app/middlewares/auth';
 import CategoryController from './app/controllers/CategoryController';
 import OrderController from './app/controllers/OrderController';
+import CreatePaymentIntentController from './app/controllers/stripe/CreatePaymentIntentController';
 
 const routes = new Router();
 const userController = new UserController();
@@ -45,6 +46,8 @@ routes.put('/categories/:id', upload.single('file'), CategoryController.update);
 routes.post('/orders', OrderController.store);
 routes.get('/orders', OrderController.index);
 routes.put('/orders/:id', OrderController.update);
+
+routes.post('create-payment-intent', CreatePaymentIntentController.store);
 
 // module.exports = routes
 export default routes;
